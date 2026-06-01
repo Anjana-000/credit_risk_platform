@@ -7,7 +7,8 @@ from src.talk_to_data.query_runner import execute_sql
 try:
     api_key = load_env_vars()
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-pro')
+    # Using the newer, faster 1.5 Flash model
+    model = genai.GenerativeModel('gemini-1.5-flash') 
 except Exception as e:
     model = None
 

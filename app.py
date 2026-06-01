@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 from src.ml.predict import predict_risk
 from src.talk_to_data.nl_to_sql import ask_data
 from src.utils.config import MODEL_PATH
@@ -15,12 +16,14 @@ tab1, tab2, tab3 = st.tabs(["📊 Data & EDA", "🔮 Risk Prediction & XAI", "�
 with tab1:
     st.header("Exploratory Data Analysis")
     st.write("Overview of the Home Credit Default Risk Dataset.")
-    st.info("Ensure you have run `notebooks/eda.py` to generate the plots.")
-    try:
+    
+    
+    # Safely check if images exist before asking Streamlit to draw them
+    if os.path.exists("data/target_dist.png") and os.path.exists("data/income_credit.png"):
         st.image("data/target_dist.png", width=500)
         st.image("data/income_credit.png", width=600)
-    except FileNotFoundError:
-        st.warning("Run the EDA script to generate visualizations.")
+    else:
+        st.warning("Visualizations not found. Please run `python notebooks/eda.py` in your terminal to generate them.")
 
 with tab2:
     st.header("Applicant Risk Prediction")

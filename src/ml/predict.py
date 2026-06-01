@@ -1,6 +1,7 @@
 import joblib
 import shap
 import pandas as pd
+import numpy as np
 from src.utils.config import MODEL_PATH
 from src.utils.logger import get_logger
 
@@ -32,11 +33,24 @@ def predict_risk(input_df):
     explainer = shap.TreeExplainer(classifier)
     shap_values = explainer.shap_values(processed_input)
     
+    # Safely extract a 1D array regardless of the SHAP version format
+    if isinstance(shap_values, list):
+        impacts = shap_values[1][0]
+    else:
+        shap_array = np.array(shap_values)
+        if len(shap_array.shape) == 3:
+            impacts = shap_array[0, :, 1]
+        else:
+            impacts = shap_array[0]
+            
+    # Ultimate safety net: force flatten to 1D
+    impacts = np.array(impacts).flatten()
+    
     # Extract feature importance for this specific prediction
     feature_names = input_df.columns
     shap_df = pd.DataFrame({
         'Feature': feature_names,
-        'Impact': shap_values[1][0] if isinstance(shap_values, list) else shap_values[0]
+        'Impact': impacts
     }).sort_values(by='Impact', key=abs, ascending=False)
     
     return proba, band, shap_df

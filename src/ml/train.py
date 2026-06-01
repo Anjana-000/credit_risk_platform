@@ -1,7 +1,7 @@
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from imblearn.pipeline import Pipeline as ImbPipeline
+from sklearn.pipeline import Pipeline  # <-- Swapped back to standard sklearn Pipeline
 from src.data.loader import load_csv
 from src.data.preprocessor import clean_data, build_preprocessing_pipeline
 from src.utils.config import MODEL_PATH, TARGET_COL
@@ -18,10 +18,11 @@ def train():
     
     preprocessor = build_preprocessing_pipeline()
     
-    # Handle Class Imbalance using class_weight='balanced'
+    # Handle Class Imbalance using class_weight='balanced' intrinsically
     model = RandomForestClassifier(n_estimators=100, class_weight='balanced', max_depth=10, random_state=42)
     
-    pipeline = ImbPipeline(steps=[
+    # Use standard Pipeline instead of ImbPipeline to avoid nesting errors
+    pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
         ('classifier', model)
     ])
